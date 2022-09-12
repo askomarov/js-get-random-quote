@@ -14,6 +14,11 @@
 
   <title>Random quote generator</title>
   <style>
+    html,
+    body {
+      height: 100%;
+    }
+
     *,
     *::after,
     *::before {
@@ -29,6 +34,21 @@
     .quotes-list {
       margin: 2rem 0;
       padding: 0 2rem;
+    }
+
+    main {
+      height: 100%;
+      padding: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 668px;
+      flex: 1 0 auto;
     }
 
     figure {
@@ -91,14 +111,24 @@
       margin-bottom: 1rem;
     }
 
+    footer {
+      text-align: center;
+    }
+
   </style>
 </head>
 
 <body>
   <main>
-    <button type="button" class="btn-add-quote">Show other quote</button>
-    <ul class="quotes-list">
-    </ul>
+    <div class="app">
+      <button type="button" class="btn-add-quote">Show other quote</button>
+      <ul class="quotes-list">
+      </ul>
+    </div>
+    <footer>
+      Made by &#129300;
+      <a href="https://github.com/askomarov">Askomarov</a>
+    </footer>
   </main>
   <script>
 
