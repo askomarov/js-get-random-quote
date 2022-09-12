@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1,
+  maximum-scale=5" />
+
+  <link rel="icon" href="devchallenges.png" />
+
+  <link rel="shortcut icon" type="image/x-icon" href="https://devchallenges.io/" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet" />
+
+  <title>Random quote generator</title>
+  <style>
+    *,
+    *::after,
+    *::before {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    .quotes-list {
+      margin: 2rem 0;
+      padding: 0 2rem;
+    }
+
+    figure {
+      position: relative;
+      padding-left: 2rem;
+
+    }
+
+    figure::before {
+      top: 0;
+      left: 0;
+      content: '';
+      position: absolute;
+      width: 1px;
+      height: 100%;
+      background-color: red;
+
+    }
+
+    blockquote {
+      margin-bottom: 1rem;
+    }
+
+    blockquote::before {
+      content: open-quote;
+    }
+
+    blockquote::after {
+      content: close-quote;
+    }
+
+    figcaption {
+      padding: 0.5rem 1rem;
+    }
+
+    figcaption:hover {
+      cursor: pointer;
+      color: #fff;
+      background-color: #333;
+    }
+
+    .btn-add-quote {
+      background-color: #333;
+      color: #fff;
+      display: block;
+      padding: 0.5rem 1rem;
+      font-weight: 700;
+      font-size: 1rem;
+      line-height: 100%;
+      width: auto;
+      margin-left: auto;
+      cursor: pointer;
+    }
+
+    .btn-add-quote:hover {
+      background-color: rgb(85, 85, 85);
+    }
+
+    h2 {
+      margin-bottom: 1rem;
+    }
+
+  </style>
+</head>
+
+<body>
+  <main>
+    <button type="button" class="btn-add-quote">Show other quote</button>
+    <ul class="quotes-list">
+    </ul>
+  </main>
+  <script>
+
+    const URL = 'https://quote-garden.herokuapp.com/api/v3/quotes/';
+
+    let newQuote = ''
+    const getQuoteData = () => {
+      try {
+        return fetch(`${URL}random`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+          .then(response => response.json())
+          .then(data => data.data);
+      } catch (error) {
+        console.log(error)
+        return error;
+      }
+    };
+
+    const getAuthorQuotes = async (author) => {
+      const response = await fetch(`${URL}?author=${author}`);
+      const data = await response.json();
+      console.log(data);
+      return data?.data;
+    }
+
+    const quotesList = document.querySelector('.quotes-list');
+    const btnGetQuote = document.querySelector('.btn-add-quote');
+
+    const quoteTemplate = (data) => {
+      console.log(data)
+      return `
+      <li>
+        <figure class="quote">
+          <blockquote>
+            ${data.quoteText}
+          </blockquote>
+          <figcaption data-name="${data.quoteAuthor}" class="btn-getmore-author" title="get 3 more of this author">&mdash; ${data.quoteAuthor}
+            <p><small>${data.quoteGenre}</small></p>
+          </figcaption>
+        </figure>
+      </li>
+      `
+    }
+    const quoteAuthorQuotesTemplate = (data) => {
+      console.log(data)
+      return `
+      <li>
+        <figure class="quote">
+          <blockquote>
+            ${data.quoteText}
+          </blockquote>
+        </figure>
+      </li>
+      `
+    }
+
+    quotesList.addEventListener('click', async (evt) => {
+      if (evt.target.closest('.btn-getmore-author')) {
+        console.log('btn click');
+        let name = evt.target.closest('[data-name]').dataset.name;
+        quotesList.textContent = '';
+        let authorQuotes = await getAuthorQuotes(name);
+        let quotes = '';
+        authorQuotes.forEach(quote => {
+          let fragment = quoteAuthorQuotesTemplate(quote)
+          quotes += fragment
+        });
+        if (quotes !== '') {
+          quotesList.insertAdjacentHTML('afterbegin', quotes)
+          quotesList.insertAdjacentHTML('afterbegin', `<h2>${name}</h2>`)
+        } else {
+          let text = `<h2>No quotes of this Author</h2>`;
+          quotesList.insertAdjacentHTML('afterbegin', text)
+        }
+      }
+    })
+
+    const onClickRenderQuote = async () => {
+      quotesList.textContent = ''
+      newQuote = await getQuoteData();
+      let fragment = quoteTemplate(newQuote[0]);
+      quotesList.insertAdjacentHTML('afterbegin', fragment)
+    }
+
+    btnGetQuote.addEventListener('click', onClickRenderQuote)
+    onClickRenderQuote()
+
+  </script>
+</body>
+
+</html>
